@@ -18,7 +18,7 @@ docker-compose up -d --build
 ```
 
 Once the containers are running, you can access the services at:
-* **Frontend:** [http://localhost:3000](http://localhost:3000)
+* **Frontend:** [http://localhost:3001](http://localhost:3001)
 * **Backend API:** [http://localhost:8080](http://localhost:8080)
 * **Swagger UI Documentation:** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
