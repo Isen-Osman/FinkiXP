@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finkixp-backend
+  namespace: finkixp-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finkixp-backend
+  template:
+    metadata:
+      labels:
+        app: finkixp-backend
+    spec:
+      containers:
+      - name: backend
+        image: finkixp-backend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8085
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: finkixp-config
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: finkixp-config
+              key: POSTGRES_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: finkixp-secrets
+              key: SPRING_DATASOURCE_PASSWORD
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: update
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finkixp-backend
+  namespace: finkixp-ns
+spec:
+  selector:
+    app: finkixp-backend
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
+  type: ClusterIP

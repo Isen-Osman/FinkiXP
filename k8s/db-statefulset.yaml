@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: finkixp-db
+  namespace: finkixp-ns
+spec:
+  serviceName: "finkixp-db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finkixp-db
+  template:
+    metadata:
+      labels:
+        app: finkixp-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: finkixp-config
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: finkixp-config
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: finkixp-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finkixp-db
+  namespace: finkixp-ns
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: finkixp-db
+  clusterIP: None

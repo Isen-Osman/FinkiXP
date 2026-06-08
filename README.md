@@ -66,3 +66,70 @@ cd frontend
 npm install
 npm run dev
 ```
+
+---
+
+## ☸️ Kubernetes Deployment
+
+You can deploy the entire application to a Kubernetes cluster (e.g., Docker Desktop, Minikube, or k3s).
+
+### 1. Build Docker Images
+First, build the images locally so the cluster can access them:
+
+```bash
+# Build Backend
+docker build -t finkixp-backend:latest ./backend
+
+# Build Frontend
+docker build -t finkixp-frontend:latest ./frontend
+```
+
+### 2. Apply Manifests
+Deploy the components in the following order:
+
+```bash
+# Create Namespace
+kubectl apply -f k8s/namespace.yaml
+
+# Apply Configs and Secrets
+kubectl apply -f k8s/config-secrets.yaml
+
+# Deploy Database
+kubectl apply -f k8s/db-statefulset.yaml
+
+# Deploy Backend
+kubectl apply -f k8s/backend-deployment.yaml
+
+# Deploy Frontend
+kubectl apply -f k8s/frontend-deployment.yaml
+
+# Apply Ingress (Optional)
+kubectl apply -f k8s/ingress.yaml
+```
+
+### 3. Accessing the Application
+
+#### Option A: Localhost (LoadBalancer)
+If you are using Docker Desktop, the frontend is exposed on:
+* **Frontend:** [http://localhost:3000](http://localhost:3000)
+
+#### Option B: Ingress (Custom Domain)
+If you have an Ingress Controller installed, add this to your `/etc/hosts` file:
+```text
+127.0.0.1 finkixp.local
+```
+Then access via: [http://finkixp.local](http://finkixp.local)
+
+#### Option C: Port Forwarding
+```bash
+# Access Frontend
+kubectl port-forward svc/finkixp-frontend 3000:3000 -n finkixp-ns
+
+# Access Backend API
+kubectl port-forward svc/finkixp-backend 8085:8085 -n finkixp-ns
+```
+
+### 🔍 Useful Commands
+* **Check Status:** `kubectl get pods -n finkixp-ns`
+* **View Logs:** `kubectl logs -f deployment/finkixp-backend -n finkixp-ns`
+* **Delete Everything:** `kubectl delete ns finkixp-ns`

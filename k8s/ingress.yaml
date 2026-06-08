@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: finkixp-ingress
+  namespace: finkixp-ns
+spec:
+  rules:
+  - host: finkixp.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: finkixp-frontend
+            port:
+              number: 3000
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: finkixp-backend
+            port:
+              number: 8085
