@@ -4,6 +4,7 @@ metadata:
   name: finkixp-ingress
   namespace: finkixp-ns
 spec:
+  ingressClassName: nginx
   rules:
   - host: finkixp.local
     http:

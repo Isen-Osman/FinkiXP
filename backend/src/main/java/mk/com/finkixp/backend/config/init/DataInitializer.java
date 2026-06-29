@@ -32,34 +32,35 @@ public class DataInitializer {
         this.taskRepository = taskRepository;
     }
 
-     //@PostConstruct
+    @PostConstruct
     public void init() {
-        User admin = new User(
+        User admin = createUserIfMissing(new User(
                 "admin",
                 passwordEncoder.encode("admin"),
                 "Admin",
                 "Admin",
                 Role.ROLE_ADMIN
-        );
-        userRepository.save(admin);
+        ));
 
-        User john = new User(
+        createUserIfMissing(new User(
                 "john",
                 passwordEncoder.encode("john"),
                 "John",
                 "Test",
                 Role.ROLE_MECHANIC
-        );
-        userRepository.save(john);
+        ));
 
-        User user = new User(
+        createUserIfMissing(new User(
                 "user",
                 passwordEncoder.encode("user"),
                 "User",
                 "User",
                 Role.ROLE_USER
-        );
-        userRepository.save(user);
+        ));
+
+        if (subjectRepository.count() > 0 || taskRepository.count() > 0) {
+            return;
+        }
 
         Subject oop = new Subject("ООП");
         Subject aok = new Subject("АОК");
@@ -150,6 +151,11 @@ public class DataInitializer {
         );
 
         taskRepository.saveAll(List.of(oopTask, aokTask, spTask, osTask, bnpTask, vpTask, nvdTask, dnickTask, emtTask));
+    }
+
+    private User createUserIfMissing(User user) {
+        return userRepository.findByUsername(user.getUsername())
+                .orElseGet(() -> userRepository.save(user));
     }
 
 }
